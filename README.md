@@ -54,7 +54,7 @@ drizzle/         SQL migrations
 
 ## Links
 - Live application: https://infinity-hackathon-eight.vercel.app
-- Demo video: _[URL]_
+- Demo video: https://drive.google.com/file/d/1t7fkuLqZHQataTmB_yZE681LWcDt6V-T/view?usp=sharing
 
 ## Requirements
 - Node.js 22.18+ (tested on Node 24; the DB scripts use Node's built-in TypeScript support) and npm
