@@ -117,6 +117,25 @@ These emails are fictional identifiers, not mailboxes. The login page has one-cl
 
 **Reset between tests:** use the **Reset demo data** button on the transcript page, or run `npm run db:reset`. Both delete projects and tasks and keep users.
 
+## Testing
+| Command | What it checks | Needs |
+| --- | --- | --- |
+| `npm test` | 30 unit tests (Node's built-in test runner, no extra dependencies): plan validation rules, AI-output parsing, the structured-output schema and prompt, dates, roles and the demo directory. Includes the organizer answer key and the changed-input variant as fixtures. | nothing |
+| `npm run typecheck` | Next.js route types + `tsc --noEmit` across the app, scripts and tests | nothing |
+| `npm run lint` | ESLint (Next.js core-web-vitals + TypeScript rules) | nothing |
+| `npm run verify:ai` | End to end: sends the supplied transcript through the running app (`POST /api/transcript`), then compares every saved project and task with the answer key. `npm run verify:ai -- changed` runs the QuickServe 12h / 23 Oct variant. | `npm run dev`, AI key, database |
+
+Results from our runs:
+- `verify:ai` and runs through the UI matched the answer key **12/12**: 3 projects, every owner, deadline and hour estimate. The changed-input variant was also exact. A smaller unseen transcript ("BrewBean Café") produced its 3 tasks correctly.
+- Access control was checked over HTTP with signed sessions for each role:
+  - Admin: all 3 projects.
+  - Ayesha: UrbanCart only.
+  - Ali: UrbanCart with only his 3 tasks; QuickServe returns 404.
+  - Hamza: 2 tasks across UrbanCart and QuickServe.
+  - Bilal: QuickServe with all 4 tasks.
+  - Developers: `/transcript` returns 404.
+  - Anonymous: `/api/*` returns 401.
+
 ## Deployment Details
 - Deployment status: _[Live / Local only]_
 - Frontend + backend: Vercel (one Next.js app)
