@@ -1,4 +1,4 @@
-import { isIsoDate } from "./dates";
+import { isIsoDate } from "./dates.ts";
 import type { ProjectPlan } from "./plan";
 import type { AppUser, Role } from "./user";
 
