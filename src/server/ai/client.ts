@@ -25,16 +25,18 @@ export class AiProviderError extends Error {
     super(detail);
   }
 
-  /** Worth trying the next provider: overload, rate limit, server error or blank reply. */
+  /** Worth trying the next provider: overload, rate limit, timeout, server error or blank reply. */
   get retryable(): boolean {
-    if (this.kind === "network" || this.kind === "empty") return true;
-    return this.kind === "http" && (this.status === 429 || (this.status ?? 0) >= 500);
+    if (this.kind !== "http") return true;
+    return this.status === 429 || (this.status ?? 0) >= 500;
   }
 }
 
 /** Stays under the route's 60s maxDuration. */
 const TOTAL_BUDGET_MS = 55_000;
 const MIN_ATTEMPT_MS = 5_000;
+/** An overloaded provider can hang for a minute; leave the backup time to answer. */
+const ATTEMPT_CAP_WITH_BACKUP_MS = 25_000;
 
 export async function createChatCompletion(request: {
   messages: ChatMessage[];
@@ -44,11 +46,12 @@ export async function createChatCompletion(request: {
   const providers = aiProviders();
   let lastError: AiProviderError | undefined;
 
-  for (const provider of providers) {
+  for (const [index, provider] of providers.entries()) {
     const remaining = deadline - Date.now();
     if (remaining < MIN_ATTEMPT_MS) break;
+    const hasBackup = index < providers.length - 1;
     try {
-      return await callProvider(provider, request, remaining);
+      return await callProvider(provider, request, hasBackup ? Math.min(remaining, ATTEMPT_CAP_WITH_BACKUP_MS) : remaining);
     } catch (error) {
       if (!(error instanceof AiProviderError) || !error.retryable) throw error;
       console.warn(`[ai] ${provider.model} unavailable (${error.status ?? error.kind}); trying next provider`);

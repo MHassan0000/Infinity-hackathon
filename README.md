@@ -32,7 +32,7 @@ Built for **The Infinity Hack '26** (AI Project Manager challenge).
 - Frontend: Next.js 16 (App Router, React 19 Server Components), Tailwind CSS 4, shadcn-style components
 - Backend: Next.js server actions and route handlers on Node.js
 - Database: PostgreSQL on Neon, accessed with Drizzle ORM (`neon-http` driver)
-- AI: xAI Grok through the OpenAI-compatible Chat Completions API with JSON-schema structured output. The provider can be swapped by changing env vars, e.g. to OpenRouter.
+- AI: Google Gemini (`gemini-3.1-flash-lite`) as primary and Groq (`gpt-oss-120b`) as automatic backup, both through the OpenAI-compatible Chat Completions API with JSON-schema structured output. If the primary is overloaded, rate-limited or slow, the request fails over within the same time budget.
 - Authentication: bcrypt password hashes, plus a signed JWT (HS256, `jose`) in an httpOnly, SameSite=Lax cookie. The token carries only the user id.
 
 ### Architecture
@@ -79,8 +79,11 @@ Only `npm run dev` needs to keep running.
 | `DATABASE_URL` | Postgres connection string (Neon pooled URL) | `.env.local` / Vercel |
 | `SESSION_SECRET` | Signs session cookies (`openssl rand -base64 32`) | `.env.local` / Vercel |
 | `AI_API_KEY` | AI provider key (server only) | `.env.local` / Vercel |
-| `AI_BASE_URL` | OpenAI-compatible base URL, default `https://api.x.ai/v1` | `.env.local` / Vercel |
-| `AI_MODEL` | Model id, e.g. a Grok model from the xAI console | `.env.local` / Vercel |
+| `AI_BASE_URL` | OpenAI-compatible base URL, e.g. `https://generativelanguage.googleapis.com/v1beta/openai` | `.env.local` / Vercel |
+| `AI_MODEL` | Primary model id, e.g. `gemini-3.1-flash-lite` | `.env.local` / Vercel |
+| `AI_FALLBACK_API_KEY` | Optional backup provider key (e.g. Groq) | `.env.local` / Vercel |
+| `AI_FALLBACK_BASE_URL` | Backup base URL, e.g. `https://api.groq.com/openai/v1` | `.env.local` / Vercel |
+| `AI_FALLBACK_MODEL` | Backup model, e.g. `openai/gpt-oss-120b` | `.env.local` / Vercel |
 
 None of these are exposed to the browser.
 
