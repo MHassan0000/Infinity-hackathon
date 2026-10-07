@@ -11,7 +11,8 @@
     "db:migrate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/migrate.mts",
     "db:seed": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed.mts",
     "db:setup": "npm run db:migrate && npm run db:seed",
-    "db:reset": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/reset-projects.mts"
+    "db:reset": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/reset-projects.mts",
+    "verify:ai": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file=.env.local scripts/verify-answer-key.mts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",

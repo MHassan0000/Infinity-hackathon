@@ -19,12 +19,34 @@ export const databaseEnv = () =>
 export const sessionEnv = () =>
   readEnv("session", z.object({ SESSION_SECRET: z.string().min(32) }));
 
-export const aiEnv = () =>
-  readEnv(
+export type AiProvider = { baseUrl: string; apiKey: string; model: string };
+
+/**
+ * AI providers in priority order: the primary (AI_*) and an optional backup
+ * (AI_FALLBACK_*) used when the primary is overloaded or rate-limited.
+ */
+export function aiProviders(): AiProvider[] {
+  const env = readEnv(
     "AI",
     z.object({
       AI_API_KEY: z.string().min(1),
-      AI_BASE_URL: z.string().url().default("https://api.x.ai/v1"),
+      AI_BASE_URL: z.string().url(),
       AI_MODEL: z.string().min(1),
+      AI_FALLBACK_API_KEY: z.string().optional(),
+      AI_FALLBACK_BASE_URL: z.string().optional(),
+      AI_FALLBACK_MODEL: z.string().optional(),
     }),
   );
+
+  const providers: AiProvider[] = [
+    { baseUrl: env.AI_BASE_URL, apiKey: env.AI_API_KEY, model: env.AI_MODEL },
+  ];
+  if (env.AI_FALLBACK_API_KEY && env.AI_FALLBACK_BASE_URL && env.AI_FALLBACK_MODEL) {
+    providers.push({
+      baseUrl: env.AI_FALLBACK_BASE_URL,
+      apiKey: env.AI_FALLBACK_API_KEY,
+      model: env.AI_FALLBACK_MODEL,
+    });
+  }
+  return providers;
+}

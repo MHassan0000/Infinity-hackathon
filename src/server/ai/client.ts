@@ -1,9 +1,10 @@
 import "server-only";
-import { aiEnv } from "@/server/config/env";
+import { type AiProvider, aiProviders } from "@/server/config/env";
 
 /**
- * Minimal client for any OpenAI-compatible Chat Completions API. Defaults to
- * xAI Grok; switching to a backup (e.g. OpenRouter) is a change of three env vars.
+ * Minimal client for OpenAI-compatible Chat Completions APIs (Groq, Gemini,
+ * xAI, OpenRouter, …). Providers are tried in order: when one is overloaded or
+ * rate-limited, the request fails over to the next within the same time budget.
  */
 export type ChatMessage = { role: "system" | "user"; content: string };
 
@@ -23,44 +24,74 @@ export class AiProviderError extends Error {
   ) {
     super(detail);
   }
+
+  /** Worth trying the next provider: overload, rate limit, server error or blank reply. */
+  get retryable(): boolean {
+    if (this.kind === "network" || this.kind === "empty") return true;
+    return this.kind === "http" && (this.status === 429 || (this.status ?? 0) >= 500);
+  }
 }
 
-const TIMEOUT_MS = 55_000;
+/** Stays under the route's 60s maxDuration. */
+const TOTAL_BUDGET_MS = 55_000;
+const MIN_ATTEMPT_MS = 5_000;
 
 export async function createChatCompletion(request: {
   messages: ChatMessage[];
   responseFormat: ResponseFormat;
 }): Promise<string> {
-  const { AI_API_KEY, AI_BASE_URL, AI_MODEL } = aiEnv();
+  const deadline = Date.now() + TOTAL_BUDGET_MS;
+  const providers = aiProviders();
+  let lastError: AiProviderError | undefined;
 
+  for (const provider of providers) {
+    const remaining = deadline - Date.now();
+    if (remaining < MIN_ATTEMPT_MS) break;
+    try {
+      return await callProvider(provider, request, remaining);
+    } catch (error) {
+      if (!(error instanceof AiProviderError) || !error.retryable) throw error;
+      console.warn(`[ai] ${provider.model} unavailable (${error.status ?? error.kind}); trying next provider`);
+      lastError = error;
+    }
+  }
+  throw lastError ?? new AiProviderError("timeout", null, providers[0].model, "Time budget exhausted");
+}
+
+async function callProvider(
+  provider: AiProvider,
+  request: { messages: ChatMessage[]; responseFormat: ResponseFormat },
+  timeoutMs: number,
+): Promise<string> {
   let response: Response;
   try {
-    response = await fetch(`${AI_BASE_URL.replace(/\/+$/, "")}/chat/completions`, {
+    response = await fetch(`${provider.baseUrl.replace(/\/+$/, "")}/chat/completions`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${AI_API_KEY}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${provider.apiKey}` },
       body: JSON.stringify({
-        model: AI_MODEL,
+        model: provider.model,
         temperature: 0,
         messages: request.messages,
         response_format: request.responseFormat,
       }),
-      signal: AbortSignal.timeout(TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
       cache: "no-store",
     });
   } catch (error) {
     const timedOut = error instanceof Error && error.name === "TimeoutError";
-    throw new AiProviderError(timedOut ? "timeout" : "network", null, AI_MODEL, String(error));
+    throw new AiProviderError(timedOut ? "timeout" : "network", null, provider.model, String(error));
   }
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new AiProviderError("http", response.status, AI_MODEL, detail.slice(0, 1_000));
+    console.error(`[ai] ${provider.model} HTTP ${response.status}: ${detail.slice(0, 500)}`);
+    throw new AiProviderError("http", response.status, provider.model, detail.slice(0, 1_000));
   }
 
   const body = (await response.json()) as {
     choices?: { message?: { content?: string | null } }[];
   };
   const content = body.choices?.[0]?.message?.content?.trim();
-  if (!content) throw new AiProviderError("empty", response.status, AI_MODEL, "No content");
+  if (!content) throw new AiProviderError("empty", response.status, provider.model, "No content");
   return content;
 }
