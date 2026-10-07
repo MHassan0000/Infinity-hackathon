@@ -53,7 +53,7 @@ drizzle/         SQL migrations
 ```
 
 ## Links
-- Live application: https://infinity-hackathon-eight.vercel.app/transcript
+- Live application: https://infinity-hackathon-eight.vercel.app
 - Demo video: _[URL]_
 
 ## Requirements
