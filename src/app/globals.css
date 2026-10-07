@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/*
+ * NovaWorks Delivery — design tokens.
+ * Cool "planning board" palette: ink navy text on a pale blueprint ground,
+ * cobalt for actions, amber for deadlines, green for confirmed work.
+ */
+:root {
+  --radius: 0.625rem;
+
+  --background: #f4f6fa;
+  --foreground: #0f1b2d;
+  --card: #ffffff;
+  --card-foreground: #0f1b2d;
+  --muted: #eaeef5;
+  --muted-foreground: #5a6a80;
+  --primary: #2b54e0;
+  --primary-foreground: #ffffff;
+  --secondary: #e6edfd;
+  --secondary-foreground: #1d3a9e;
+  --accent: #eaeef5;
+  --accent-foreground: #0f1b2d;
+  --destructive: #cf3a3a;
+  --success: #11805d;
+  --warning: #b36b00;
+  --border: #dbe2ec;
+  --input: #cbd5e3;
+  --ring: #2b54e0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-bricolage), var(--font-geist-sans), ui-sans-serif, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+
+  :focus-visible {
+    outline-color: var(--ring);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
