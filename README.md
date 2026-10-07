@@ -57,7 +57,7 @@ drizzle/         SQL migrations
 - Demo video: _[URL]_
 
 ## Requirements
-- Node.js 20.9+ (tested on Node 24) and npm
+- Node.js 22.18+ (tested on Node 24; the DB scripts use Node's built-in TypeScript support) and npm
 - A PostgreSQL database (Neon free tier works)
 - An API key for an OpenAI-compatible provider (xAI Grok, or OpenRouter as backup)
 
