@@ -8,17 +8,24 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx scripts/migrate.ts",
-    "db:seed": "tsx scripts/seed.ts",
-    "db:reset": "tsx scripts/reset-projects.ts",
+    "db:migrate": "node scripts/migrate.mts",
+    "db:seed": "node scripts/seed.mts",
     "db:setup": "npm run db:migrate && npm run db:seed",
-    "db:studio": "drizzle-kit studio"
+    "db:reset": "node scripts/reset-projects.mts"
   },
   "dependencies": {
+    "@neondatabase/serverless": "https://registry.npmjs.org/@neondatabase/serverless/-/serverless-1.2.0.tgz",
+    "bcryptjs": "https://registry.npmjs.org/bcryptjs/-/bcryptjs-3.0.3.tgz",
+    "class-variance-authority": "https://registry.npmjs.org/class-variance-authority/-/class-variance-authority-0.7.1.tgz",
+    "clsx": "https://registry.npmjs.org/clsx/-/clsx-2.1.1.tgz",
+    "drizzle-orm": "https://registry.npmjs.org/drizzle-orm/-/drizzle-orm-0.45.3.tgz",
+    "jose": "https://registry.npmjs.org/jose/-/jose-6.2.12.tgz",
     "next": "16.4.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "server-only": "https://registry.npmjs.org/server-only/-/server-only-0.0.1.tgz",
+    "tailwind-merge": "https://registry.npmjs.org/tailwind-merge/-/tailwind-merge-3.7.0.tgz",
+    "zod": "https://registry.npmjs.org/zod/-/zod-4.6.5.tgz"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
@@ -31,6 +38,6 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=20.9"
+    "node": ">=22.18"
   }
 }

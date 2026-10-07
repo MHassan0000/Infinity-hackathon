@@ -10,8 +10,8 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-// Relative import: drizzle-kit loads this file outside Next's path-alias resolution.
-import { ROLES } from "../../domain/user";
+// Relative import with extension: DB scripts load this file with plain Node (no path aliases).
+import { ROLES } from "../../domain/user.ts";
 
 export const roleEnum = pgEnum("role", ROLES);
 
