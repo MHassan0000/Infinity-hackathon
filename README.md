@@ -5,9 +5,9 @@ The administrator pastes a planning-meeting transcript. The AI turns it into pro
 Built for **The Infinity Hack '26** (AI Project Manager challenge).
 
 ## Team
-- Team name: _[team name]_
-- Members and responsibilities: _[names and responsibilities]_
-- Repository: _[GitHub URL]_
+- Team name: DBD
+- - Members and responsibilities: NAJI-ULLAH, HASSAN YOUSAF, AHMAD ASHFAQ
+- Repository: https://github.com/Naji-Ullah/infinity-hackathon
 
 ## What Works
 - **Seeded login.** The ten demo accounts (1 admin, 3 managers, 6 developers) are created by an idempotent seed script. There's no signup.
@@ -137,10 +137,10 @@ Results from our runs:
   - Anonymous: `/api/*` returns 401.
 
 ## Deployment Details
-- Deployment status: _[Live / Local only]_
+- Deployment status: LIVE
 - Frontend + backend: Vercel (one Next.js app)
 - Database: Neon PostgreSQL (free tier)
-- Deployed branch/commit: _[branch and SHA]_
+
 
 ### How We Deployed
 1. Import the GitHub repo in Vercel. The framework preset is Next.js and the build command is `next build`.
